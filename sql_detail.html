@@ -1,0 +1,243 @@
+<!DOCTYPE HTML>
+<!--
+	Massively by HTML5 UP
+	html5up.net | @ajlkn
+	Free for personal and commercial use under the CCA 3.0 license (html5up.net/license)
+-->
+<html>
+	<head>
+		<title> TMDB Movie Database Analysis</title>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
+		<link rel="stylesheet" href="assets/css/main.css" />
+		<noscript><link rel="stylesheet" href="assets/css/noscript.css" /></noscript>
+	</head>
+	<body class="is-preload">
+
+		<!-- Wrapper -->
+			<div id="wrapper">
+
+				<!-- Header -->
+					<header id="header">
+						<a href="index.html" class="logo">Home</a>
+					</header>
+
+				<!-- Nav -->
+					<!-- <nav id="nav">
+						<ul class="links">
+							<li><a href="index.html">Fifa 24</a></li>
+							<li class="active"><a href="generic.html">Dashboard Navigation</a></li>
+							<li><a href="elements.html">Machine Learning App</a></li>
+						</ul>
+						<ul class="icons">
+							<!-- <li><a href="#" class="icon brands fa-twitter"><span class="label">Twitter</span></a></li>
+							<li><a href="#" class="icon brands fa-facebook-f"><span class="label">Facebook</span></a></li>
+							<li><a href="#" class="icon brands fa-instagram"><span class="label">Instagram</span></a></li> -->
+							<li><a href="https://github.com/leonmoraes17/Fifa_24_Game" target="_blank" class="icon brands fa-github"><span class="label">GitHub</span></a></li>
+						</ul>
+					</nav> -->
+
+				<!-- Main -->
+					<div id="main">
+
+						<!-- Post -->
+							<section class="post">
+								<header class="major">
+									<span class="date">2024</span>
+									<h1>TMDB Movie DB Analysis<br />
+									</h1>
+									<P> <a href="https://app.powerbi.com/view?r=eyJrIjoiYjZlMGI4ODctYzdiZi00ZTk0LWIyZjgtNGYwMDhlZTEwYzkxIiwidCI6IjRiMTU3NGMwLWY2MDgtNGJiMi04MWY2LTY3ZjEyODUwZjFiMyJ9" target="_blank" >POWER BI Dashboard</a></P>
+								</header>
+								<div class="image main"><img src="images/tmdb_dashboard.JPG" alt="" /></div>
+								<p>I used SQL to performs opertions on the Database to get better insights on the movie database.</p>
+								<p { margin: 2px 0;}>SQL Operations performed</p>
+								<p  ><b>--HIGHEST GROSSING FILM </b><br>
+									SELECT film_id, title, (revenue-budget) as profit<br>
+									FROM movie<br>
+									ORDER by profit DESC<br>
+									</p>
+								<div class="image main" ><img src="images/highest_grossing_film.png" alt="" /></div>
+								<p  ><b>--SELECT all Movies with the name 'Avatar' or 'Avengers' in them</b><br>
+									SELECT film_id, title 
+									FROM movie<br>
+									WHERE title LIKE '%Avatar%' OR title LIKE '%Avengers%
+
+									</p>
+								<div class="image main" style="height:442px;width:442px" ><img src="images/tmdb_avatar.png" alt="" /></div>
+								<p  ><b>--Finding the count of movies under of a particular Movie collection </b><br>
+									SELECT m.collection_id,  c.name, COUNT(m.film_id) as movie_count<br>
+									FROM movie as m<br>
+									JOIN collection as c<br>
+									ON m.collection_id = c.collection_id<br>
+									WHERE c.name LIKE '%Star War%' or c.name LIKE '%Mission%'<br>
+									GROUP BY m.collection_id,c.name
+									
+									</p>
+								<div class="image main"  ><img src="images/tmdb_collection_count.png" alt="" /></div>
+
+								<p  ><b>--List all films where Pixar company was involved in creating the film. </b><br>
+									----using WINDOWS function & string_agg function and since its a Integer had to cast the column to a STRING(text)
+									<br>
+									WITH X as (SELECT m.film_id, m.title, string_agg(mc.company_id::text, ',') as company_id,string_agg(c.name, ',') as company_names<br>
+									from movie as m<br>
+									JOIN movie_company as mc<br>
+									ON m.film_id = mc.film_id<br>
+									JOIN company as c<br>
+									ON mc.company_id = c.company_id<br>
+									GROUP BY m.film_id, m.title<br>
+									)<br>
+									SELECT X.film_id, X.title, X.company_names<br>
+									FROM X<br>
+									WHERE X.company_names LIKE '%Pixar%'<br>
+
+									<div class="image main"  ><img src="images/tmdb_pixar.png" alt="" /></div>
+									</p>
+
+									<p  ><b>-- Find out all movies of 'TOM CRUISE' where the rating of the movie is above 7 </b><br>
+										
+										<i> We first find Tom cruise ID number in the DB </i>
+										-- Show all movies released in Oct 2020 where rating is greater than 6
+										SELECT film_id, title, release_date, rating from movie
+										WHERE DATE_PART('year', release_date)=2020 and date_part('month', release_date)=10 and rating >6.0
+										ELECT person_id, name from crew_credit<br>
+										WHERE name LIKE '%Tom Cru%'<br>
+
+										<i>--USING CTE we created a movies table having rating more than 7 and then an actor TABLE containing all TOM Cruise's movies. </i> <br>
+										WITH movies as ( <br>
+											SELECT filmid, title, rating<br>
+											FROM movie<br>
+											WHERE rating > 7.0<br>
+										),<br>
+										actor as (<br>
+											SELECT film_id, person_id, name<br>
+											FROM crew_credit<br>
+											WHERE person_id = 500<br>
+										)<br>
+										SELECT movies.film_id, actor.person_id, actor.name, movies.title, movies.rating <br>
+										FROM movies<br>
+										JOIN actor <br>
+										ON movies.film_id = actor.film_id<br>										
+	
+										<div class="image main"  ><img src="images/tmdb_tomcruise.png" alt="" /></div>
+										</p>
+									
+										<p><b>-- Show all movies released in Oct 2020 where rating is greater than 6 </b> <br>
+											SELECT film_id, title, release_date, rating from movie <br>
+											WHERE DATE_PART('year', release_date)=2020 and date_part('month', release_date)=10 and rating >6.0
+											</p>
+										
+										<div class="image main"  ><img src="images/tmbd_oct2020.png" alt="" /></div>
+
+										<p>
+											<b>--SHOW the Directors who have the BEST RATED MOVIES   </b> <br>
+											<i>---clause : director should have directed 3 or more movies and each movie has to have more than 5000 votes to qualify</i><br>
+											WITH X as (<br>
+											SELECT cc.person_id, cc.name as director, string_agg(m.film_id::text,',') as film_ids, string_agg(m.title,',') as film_titles, ROUND(AVG(m.rating),2) as avg_rating, SUM(m.vote_count) as total_votes<br>
+											FROM crew_credit as cc<br>
+											JOIN movie as m<br>
+											ON cc.film_id = m.film_id<br>
+											WHERE cc.department_id = 2 and m.vote_count > 5000 <br>
+											GROUP BY CC.person_id, cc.name <br>
+											ORDER BY avg_rating DESC<br>
+											)<br>
+											SELECT *, SUM(length(x.film_ids)-length(replace(X.film_ids, ',',''))+1) as total_films<br>
+											FROM X<br>
+											GROUP BY X.person_id,X.director, X.film_ids, X.film_titles, X.avg_rating, X.total_votes<br>
+											HAVING SUM(length(x.film_ids)-length(replace(X.film_ids, ',',''))+1) > 2<br>
+											ORDER BY avg_rating DESC<br>
+											--SUM(length(x.film_ids)-length(replace(X.film_ids, ',',''))+1 counts the number of commas in the string field<br>
+
+										</p>
+										<div class="image main"  ><img src="images/tmdb_top_directors.png" alt="" /></div>
+
+										<p> <b>--SHOW me the avg rating of the movies of the 4 actors along with the total count of movies.</b><br>
+											WITH X as (<br>
+											SELECT cc.person_id, cc.name as actor, string_agg(m.film_id::text,',') as film_ids, string_agg(m.title,',') as film_titles, ROUND(AVG(m.rating),2) as avg_rating, SUM(m.vote_count) as total_votes<br>
+											FROM crew_credit as cc<br>
+											JOIN movie as m<br>
+											ON cc.film_id = m.film_id<br>
+											WHERE cc.name IN('Tom Cruise', 'Brad Pitt', 'Morgan Freeman', 'Leonardo DiCaprio') <br>
+											GROUP BY CC.person_id, cc.name <br>
+											ORDER BY avg_rating DESC<br>
+											)<br>
+											SELECT *, SUM(length(x.film_ids)-length(replace(X.film_ids, ',',''))+1) as total_films<br>
+											FROM X<br>
+											GROUP BY X.person_id,X.actor, X.film_ids, X.film_titles, X.avg_rating, X.total_votes<br>
+											HAVING SUM(length(x.film_ids)-length(replace(X.film_ids, ',',''))+1) > 4  <i>-- SELECTING actors only who have acted in  5 movies and more</i><br>
+											ORDER BY avg_rating DESC<br>
+											</p>
+											<div class="image main"  ><img src="images/tmdb_4actors.png" alt="" /></div>
+
+											<P> <a href="https://app.powerbi.com/view?r=eyJrIjoiYjZlMGI4ODctYzdiZi00ZTk0LWIyZjgtNGYwMDhlZTEwYzkxIiwidCI6IjRiMTU3NGMwLWY2MDgtNGJiMi04MWY2LTY3ZjEyODUwZjFiMyJ9" target="_blank" >Open Power BI Interactive Dashboard</a></P>
+							</section>
+
+					</div>
+<!-- 
+				Footer
+					<footer id="footer">
+						<section>
+							<form method="post" action="#">
+								<div class="fields">
+									<div class="field">
+										<label for="name">Name</label>
+										<input type="text" name="name" id="name" />
+									</div>
+									<div class="field">
+										<label for="email">Email</label>
+										<input type="text" name="email" id="email" />
+									</div>
+									<div class="field">
+										<label for="message">Message</label>
+										<textarea name="message" id="message" rows="3"></textarea>
+									</div>
+								</div>
+								<ul class="actions">
+									<li><input type="submit" value="Send Message" /></li>
+								</ul>
+							</form>
+						</section>
+						<section class="split contact">
+							<section class="alt">
+								<h3>Address</h3>
+								<p>1234 Somewhere Road #87257<br />
+								Nashville, TN 00000-0000</p>
+							</section>
+							<section>
+								<h3>Phone</h3>
+								<p><a href="#">(000) 000-0000</a></p>
+							</section>
+							<section>
+								<h3>Email</h3>
+								<p><a href="#">info@untitled.tld</a></p>
+							</section>
+							<section>
+								<h3>Social</h3>
+								<ul class="icons alt">
+									<li><a href="#" class="icon brands alt fa-twitter"><span class="label">Twitter</span></a></li>
+									<li><a href="#" class="icon brands alt fa-facebook-f"><span class="label">Facebook</span></a></li>
+									<li><a href="#" class="icon brands alt fa-instagram"><span class="label">Instagram</span></a></li>
+									<li><a href="#" class="icon brands alt fa-github"><span class="label">GitHub</span></a></li>
+								</ul>
+							</section>
+						</section>
+					</footer>
+
+				<!-- Copyright -->
+					<!-- <div id="copyright">
+						<ul><li>&copy; Untitled</li><li>Design: <a href="https://html5up.net">HTML5 UP</a></li></ul>
+					</div> -->
+
+			</div>
+-->
+
+		<!-- Scripts -->
+			<script src="assets/js/jquery.min.js"></script>
+			<script src="assets/js/jquery.scrollex.min.js"></script>
+			<script src="assets/js/jquery.scrolly.min.js"></script>
+			<script src="assets/js/browser.min.js"></script>
+			<script src="assets/js/breakpoints.min.js"></script>
+			<script src="assets/js/util.js"></script>
+			<script src="assets/js/main.js"></script>
+
+	</body>
+</html>
